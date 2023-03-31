@@ -2,6 +2,17 @@
 Allows user to view, edit, append and save specific json files
 
 This JSON_Editor was written in Python 3.7 using PyCharm
+=====================
+=====================
+Be sure to run the main.py from within the JSON_Editor directory. 
+
+Be sure that the JSON_Editor directory contains these 2 files:
+main.py
+my_gui_01.ui
+
+Be sure that the JSON_Editor directory contains these 2 folders:
+/json_files
+/temp
 
 =====================
 =====================
