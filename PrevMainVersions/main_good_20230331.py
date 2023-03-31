@@ -13,7 +13,7 @@ import shutil
 # Hard paths to gui
 # gui_use = "my_gui_01.ui"
 # import the ui file - added this path reference to allow
-ui_file = os.path.join(os.path.dirname(__file__), 'my_gui_01.ui')
+ui_file = os.path.join(os.path.dirname(__file__), '../my_gui_01.ui')
 
 
 class MainWindow(QDialog):
@@ -45,9 +45,7 @@ class MainWindow(QDialog):
 
     def file_browse(self):
         # Browse to File
-        print(self.directory_path_use)
-        json_dir_path_use = os.path.join(self.directory_path_use, "json_files")
-        json_name = QFileDialog.getOpenFileName(self, "Open file", json_dir_path_use, "JSON files (*.json)")
+        json_name = QFileDialog.getOpenFileName(self, "Open file", self.directory_path_use, "JSON files (*.json)")
 
         if json_name[0]:
             # Display full path of selected JSON file
@@ -76,16 +74,6 @@ class MainWindow(QDialog):
             except json.decoder.JSONDecodeError:
                 self.display_json_error()
 
-    def display_json_error(self):
-        # Error message
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("The selected file is not a valid JSON file. Please select a different file.")
-        msg.setWindowTitle("JSON Error")
-        msg.exec_()
-        self.file_browse()
-
-    # json_path gets value from json_name[0]
     def open_json_file(self, json_path):
         # open the json file
         with open(json_path, 'r') as file:
@@ -132,6 +120,15 @@ class MainWindow(QDialog):
                 self.tableWidget.setItem(row_idx, col_idx, item)
         self.tableWidget.resizeColumnsToContents()
 
+    def display_json_error(self):
+        # Error message
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("The selected file is not a valid JSON file. Please select a different file.")
+        msg.setWindowTitle("JSON Error")
+        msg.exec_()
+        self.file_browse()
+
     def update_text_browser_5(self):
         # this creates and displays the filename that will be saved
         new_filename_temp = os.path.splitext(self.textBrowser_3.text())[0]
@@ -145,35 +142,16 @@ class MainWindow(QDialog):
 
         # the index is the value the user selected from the combobox
         # These values will clear the editing boxes
-
-        print("We are editing existing Records")
-        for key in self.raw_data_from_json["actors"][1]:
-            record_to_change = f"recordChange_{key}"
-            print(record_to_change)
-
-        # if index < 0:
-        #     self.recordChange_name.setText("")
-        #     self.recordChange_age.setText("")
-        #     self.recordChange_gender.setCurrentIndex(-1)
-        #     self.recordChange_shirtSize.setCurrentIndex(-1)
-        #     self.recordChange_pantSize.setCurrentIndex(-1)
-        #     self.recordChange_shoeSize.setCurrentIndex(-1)
-        #     self.recordChange_isAvail.setCurrentIndex(-1)
-        #     self.recordChange_notes.setText("")
-        #     return
-
-        set_blank_list = ["name", "age", "notes"]
-        set_index_list = ["gender", "shirtSize", "pantSize", "shoeSize", "isAvail"]
-
         if index < 0:
-            for key in self.raw_data_from_json["actors"][1]:
-                record_to_change = f"recordChange_{key}"
-                if key in set_blank_list:
-                    getattr(self, record_to_change).setText("")
-                elif key in set_index_list:
-                    getattr(self, record_to_change).setCurrentIndex(-1)
+            self.recordChange_name.setText("")
+            self.recordChange_age.setText("")
+            self.recordChange_gender.setCurrentIndex(-1)
+            self.recordChange_shirtSize.setCurrentIndex(-1)
+            self.recordChange_pantSize.setCurrentIndex(-1)
+            self.recordChange_shoeSize.setCurrentIndex(-1)
+            self.recordChange_isAvail.setCurrentIndex(-1)
+            self.recordChange_notes.setText("")
             return
-
 
         # Create List of Shoe Sizes from 4 to 16 in 0.5 increment
         shoe_size_vals = []
@@ -335,15 +313,13 @@ class MainWindow(QDialog):
             # create condition for whether file was written
             file_written = False
 
-            write_file_full_name = os.path.join(self.path_use, self.new_filename)
-            write_file_name = self.new_filename
-            print(write_file_full_name)
+            write_file_name = os.path.join(self.path_use, self.new_filename)
 
-            while os.path.isfile(write_file_full_name):
+            while os.path.isfile(write_file_name):
                 file_dialog = QFileDialog()
                 # if the file exists, open a file dialog to allow the user to select a new filename
                 popup_message = f"You are here because {write_file_name} already exists"
-                new_filename_temp, _ = file_dialog.getSaveFileName(None, popup_message, write_file_full_name,
+                new_filename_temp, _ = file_dialog.getSaveFileName(None, popup_message, write_file_name,
                                                                    "JSON Files (*.json)")
                 if not new_filename_temp:  # if user clicks cancel, exits check and won't save the record
                     break
@@ -351,18 +327,18 @@ class MainWindow(QDialog):
                 with open(new_filename_temp, 'w') as file:
                     json.dump(self.raw_data_from_json, file, indent=4)
                     write_file_name_temp = os.path.basename(new_filename_temp)  # Update the new filename
-                    write_file_full_name = os.path.join(self.path_use, write_file_name_temp)
-                    # print(write_file_full_name)
-                    if os.path.isfile(write_file_full_name):
+                    write_file_name = os.path.join(self.path_use, write_file_name_temp)
+                    # print(write_file_name)
+                    if os.path.isfile(write_file_name):
                         file_written = True
                     break
 
             # checks to see if write_file_name does NOT exist and then saves it
-            if not os.path.isfile(write_file_full_name):
+            if not os.path.isfile(write_file_name):
                 # print(f"{write_file_name} isn't there, so we are writing it")
-                with open(write_file_full_name, 'w') as file:
+                with open(write_file_name, 'w') as file:
                     json.dump(self.raw_data_from_json, file, indent=4)
-                    if os.path.isfile(write_file_full_name):
+                    if os.path.isfile(write_file_name):
                         file_written = True
 
             # Update the table widget with the new values
@@ -410,7 +386,7 @@ class MainWindow(QDialog):
             # Write the NEW JSON data to a temp folder
             # print(self.filename_without_ext)
             self.temp_filename_for_new_record = self.filename_without_ext + "_new_tmp.json"
-            path_use_to_temp = os.path.join(self.directory_path_use, "temp")
+            path_use_to_temp = os.path.join(self.directory_path_use, "../temp")
             path_use_to_temp_with_file = os.path.join(path_use_to_temp, self.temp_filename_for_new_record)
             # print(path_use_to_temp_with_file)
             destination_path = os.path.join(self.path_use, self.new_filename)
@@ -420,12 +396,6 @@ class MainWindow(QDialog):
             #     json.dump(self.raw_data_from_json, file, indent=4)
             with open(path_use_to_temp_with_file, 'w') as file:
                 json.dump(self.raw_data_from_json, file, indent=4)
-
-            # New Lines
-            # try to load the temp file
-            self.open_json_file(path_use_to_temp_with_file)
-            self.set_combobox()
-            self.create_table_widget()
 
             # Open a dialog box to ask the user if they want to continue adding records or go back to editing records
             this_message = f"{self.temp_filename_for_new_record} saved successfully. What would you like to do next?"
@@ -443,7 +413,6 @@ class MainWindow(QDialog):
                 self.comboBox_SelectRecord.setCurrentIndex(-1)
                 # reset comboBox to "Create"" to populate the data
                 self.comboBox_SelectRecord.setCurrentIndex(self.number_records + 1)
-
                 pass
             elif response == QMessageBox.RejectRole:
                 # copy temp file to updated record file
@@ -454,54 +423,12 @@ class MainWindow(QDialog):
             if write_the_record:
                 # print(f"Source full file and path {path_use_to_temp_with_file}")
                 # print(f"Destination file and path {destination_path}")
-                # print(path_use_to_temp_with_file)
-                # print(self.new_filename)
 
-                # To remove
-                # if os.path.exists(destination_path):
-                #     file_dialog2 = QFileDialog()
-                #     popup_message = f"Do you wish to write over {self.new_filename} "
-                #
-                #     destination_path_temp, _ = file_dialog2.getSaveFileName(None, popup_message, destination_path,
-                #                                                            "JSON Files (*.json)")
-                #     # print(destination_path_temp)
-                #     destination_path = os.path.join(path_use_to_temp, destination_path_temp)
-                #
-                # # print(destination_path)
-                # # Copy the file to the destination
-                # try:
-                #     shutil.copy(path_use_to_temp_with_file, destination_path)
-                #     # delete the source file
-                #     os.remove(path_use_to_temp_with_file)
-                # except shutil.Error as e:
-                #     print(f"Error copying file: {e}")
-                # except Exception as e:
-                #     print(f"Error: {e}")
-                # # resets the combobox to clear the values
-                # self.comboBox_SelectRecord.setCurrentIndex(-1)
-
-                while os.path.exists(destination_path):
-                    file_dialog2 = QFileDialog()
-
-                    popup_message = f"Append the new records to the existing \n {self.new_filename} "
-
-                    destination_path_temp, _ = file_dialog2.getSaveFileName(None, popup_message, destination_path,
+                if os.path.exists(destination_path):
+                    destination_path_temp, _ = QFileDialog.getSaveFileName(None, "Save As", self.path_use,
                                                                            "JSON Files (*.json)")
-                    if not destination_path_temp:
-                        # User cancelled the file dialog
-                        message_box = QMessageBox()
-                        message_box.setIcon(QMessageBox.Question)
-                        message_box.setText("Are you sure you don't want to permanently save the new records?")
-                        message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                        message_box.setDefaultButton(QMessageBox.No)
-                        choice = message_box.exec()
-                        if choice == QMessageBox.Yes:
-                            # User doesn't want to copy the file
-                            return
-                    else:
-                        # User entered a filename they want to use
-                        destination_path = os.path.join(path_use_to_temp, destination_path_temp)
-                        break
+                    # print(destination_path_temp)
+                    destination_path = os.path.join(path_use_to_temp, destination_path_temp)
 
                 # print(destination_path)
                 # Copy the file to the destination
@@ -509,15 +436,13 @@ class MainWindow(QDialog):
                     shutil.copy(path_use_to_temp_with_file, destination_path)
                     # delete the source file
                     os.remove(path_use_to_temp_with_file)
-                    # QMessageBox.information(self, "File Copied", "File successfully copied.")
                 except shutil.Error as e:
-                    QMessageBox.critical(self, "Error", f"You chose not to save the new records : {e}")
+                    print(f"Error copying file: {e}")
                 except Exception as e:
                     print(f"Error: {e}")
-                    # QMessageBox.critical(self, "Error", f"Error: {e}")
-
                 # resets the combobox to clear the values
                 self.comboBox_SelectRecord.setCurrentIndex(-1)
+
 
 app = QApplication(sys.argv)
 main_window = MainWindow()
