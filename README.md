@@ -87,16 +87,14 @@ Once there are values in the editing boxes, then the "Save Record" button is ena
 
 When the user clicks "Save Record" :
 
-The record will be saved to a new json file with the name shown in the New File Name box. 
+ - Existing Records:    The record will be saved to a new json file using the name shown in the New File Name box. 
 The values in the table will be updated.
 
-If the user has created a new record, this record does get saved. However, the new record is not visible in the table until the new json file gets loaded and parsed.
-
-It is possible to create many new records
+ - New Records:    If the user has created a new record, the new record is saved in a temp json file in the temp folder. That new file is then reloaded, reparsed and the values in the viewing table will be updated. Once user is done creating new records, the temp file is moved to the json_files folder, using the name shown in the New File Name box. It is possible to create many new records
 
 =====================
 
 Future goals:
-- rework the table view to allow the viewing of new records
+- rework the table view to allow the viewing of new records - DONE
 - allow user to select alternate css or layouts
 - include a record <Delete> function with a "are you sure" check
