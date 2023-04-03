@@ -55,7 +55,6 @@ If there are 5 actors, the choices would look like this:
 - 3
 - 4
 - 5
-- 6
 - Create
 
 If a user selects a number, the record associated with that table-index will be displayed in the value editing boxes.
